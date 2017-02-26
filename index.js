@@ -4,7 +4,7 @@
  */
 function defaultSplitIntoChunksFn(str) {
   const chunks = [];
-  const regex = /^(?:[a-z0-9]+|[^a-z0-9])/i;
+  const regex = /^(?:[^\s.,!?]+|[\s.,!?]+)/i;
 
   let lastIndex = 0;
   let match = true;
