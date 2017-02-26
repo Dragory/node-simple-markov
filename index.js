@@ -42,6 +42,7 @@ function parse(addToTableFn, str, options = {}) {
 
   function processNextChunk(chunks, i = 0) {
     const chunk = chunks[i];
+    if (chunk == null) return;
 
     if (i === 0) {
       return addToTableFn(START_KEY, chunk).then(() => processNextChunk(chunks, i + 1));
@@ -58,10 +59,9 @@ function parse(addToTableFn, str, options = {}) {
 
     if (i === chunks.length - 1) {
       promises.push(addToTableFn(chunk, END_KEY));
-      return Promise.all(promises);
-    } else {
-      return Promise.all(promises).then(() => processNextChunk(chunks, i + 1));
     }
+
+    return Promise.all(promises).then(() => processNextChunk(chunks, i + 1));
   }
 
   return processNextChunk(chunks);
