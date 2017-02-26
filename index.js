@@ -16,7 +16,8 @@ function defaultSplitIntoChunksFn(str) {
       lastIndex += match[0].length;
       if (lastIndex >= str.length) break;
     } else {
-      chunks.push(str.slice(lastIndex));
+      const lastChunk = str.slice(lastIndex);
+      if (lastChunk !== '') chunks.push();
     }
   }
 
