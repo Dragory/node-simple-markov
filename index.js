@@ -71,9 +71,10 @@ function parse(addToTableFn, str, options = {}) {
 /**
  * @param {Function} getNextChunkFn
  * @param {Number} maxLength
+ * @param {String[]} chunks
  * @returns {Promise<String[]>}
  */
-function generate(getNextChunkFn, maxLength = 30) {
+function generate(getNextChunkFn, maxLength = 30, chunks = []) {
   function getNextChunk(chunks, maxLength) {
     return getNextChunkFn(chunks).then(chunk => {
       if (chunks.length > maxLength || chunk === null) return chunks;
@@ -81,10 +82,11 @@ function generate(getNextChunkFn, maxLength = 30) {
     });
   }
 
-  return getNextChunk([], maxLength);
+  return getNextChunk(chunks, maxLength);
 }
 
 module.exports = {
+  defaultSplitIntoChunksFn,
   chunksToKey,
   parse,
   generate,
