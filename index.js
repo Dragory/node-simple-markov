@@ -100,7 +100,7 @@ function generate(getNextChunkFn, chunks = [], options = {}) {
 
     // Ask for the next chunk. If this fails, try again with a shorter lookbehind.
     return getNextChunkFn(key).then(chunk => {
-      if (chunk === null) return getNextChunk(chunks, lookbehind - 1);
+      if (chunk == null) return getNextChunk(chunks, lookbehind - 1);
       return getNextChunk(chunks.concat(chunk));
     });
   }
