@@ -1,30 +1,4 @@
 /**
- * @param {String} str
- * @returns {String[]}
- */
-function defaultSplitIntoChunksFn(str) {
-  const chunks = [];
-  const regex = /^(?:[^\s.,!?]+|[\s.,!?]+)/i;
-
-  let lastIndex = 0;
-  let match = true;
-  while (match) {
-    match = str.slice(lastIndex).match(regex);
-
-    if (match) {
-      chunks.push(match[0]);
-      lastIndex += match[0].length;
-      if (lastIndex >= str.length) break;
-    } else {
-      const lastChunk = str.slice(lastIndex);
-      if (lastChunk !== '') chunks.push();
-    }
-  }
-
-  return chunks;
-}
-
-/**
  * @param {String[]} chunks
  * @return {String}
  */
@@ -37,13 +11,10 @@ function chunksToKey(chunks) {
  * @param {String} str
  * @param {Object} options
  */
-function parse(addToTableFn, str, options = {}) {
-  const splitIntoChunksFn = options.splitIntoChunksFn || defaultSplitIntoChunksFn;
+function loadIntoTable(addToTableFn, chunks, options = {}) {
   const MAX_LOOKBEHIND = options.MAX_LOOKBEHIND || 2;
   const START_KEY = options.START_KEY || '__start__';
   const END_KEY = options.END_KEY || '__end__';
-
-  const chunks = splitIntoChunksFn(str);
 
   function processNextChunk(chunks, i = 0) {
     const chunk = chunks[i];
@@ -74,11 +45,11 @@ function parse(addToTableFn, str, options = {}) {
 
 /**
  * @param {Function} getNextChunkFn Function to return the next chunk for a key, i.e. key => string
- * @param {String[]} chunks Chunks to start with, defaults to empty array
+ * @param {String[]} initialChunks Chunks to start with, defaults to empty array
  * @param {Object} options
  * @returns {Promise<String[]>}
  */
-function generate(getNextChunkFn, chunks = [], options = {}) {
+function generate(getNextChunkFn, initialChunks = [], options = {}) {
   const MAX_CHUNKS = options.MAX_CHUNKS || 30;
   const MAX_LOOKBEHIND = options.MAX_LOOKBEHIND || 2;
   const START_KEY = options.START_KEY || '__start__';
@@ -105,11 +76,10 @@ function generate(getNextChunkFn, chunks = [], options = {}) {
     });
   }
 
-  return getNextChunk(chunks);
+  return getNextChunk(initialChunks);
 }
 
 module.exports = {
-  defaultSplitIntoChunksFn,
-  parse,
+  loadIntoTable,
   generate,
 };
