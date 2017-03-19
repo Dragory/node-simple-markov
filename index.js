@@ -31,10 +31,17 @@ function loadIntoTable(addToTableFn, chunks, options = {}) {
 
       const key = chunksToKey(chunks.slice(lookbehindIndex, lookbehindIndex + currentLookbehind));
       promises.push(addToTableFn(key, chunk));
+
+      if (i === chunks.length - 1 && currentLookbehind !== MAX_LOOKBEHIND) {
+        // At the end, also add the END_KEY entries
+        // The "0 lookbehind" (i.e. only the current chunk) END_KEY is added further below
+        const keyBeforeEnd = chunksToKey(chunks.slice(lookbehindIndex, lookbehindIndex + currentLookbehind).concat(chunk));
+        promises.push(addToTableFn(keyBeforeEnd, END_KEY));
+      }
     }
 
-    if (i === chunks.length - 1) {
-      promises.push(addToTableFn(chunk, END_KEY));
+    if (i === chunks.length) {
+      promises.push(addToTableFn(chunksToKey([chunk]), END_KEY));
     }
 
     return Promise.all(promises).then(() => processNextChunk(chunks, i + 1));
@@ -53,6 +60,7 @@ function generate(getNextChunkFn, initialChunks = [], options = {}) {
   const MAX_CHUNKS = options.MAX_CHUNKS || 30;
   const MAX_LOOKBEHIND = options.MAX_LOOKBEHIND || 2;
   const START_KEY = options.START_KEY || '__start__';
+  const END_KEY = options.END_KEY || '__end__';
 
   function getNextChunk(chunks, lookbehind = MAX_LOOKBEHIND) {
     // If we're past the max length or can't find a next chunk (= lookbehind 0), bail out
@@ -72,6 +80,7 @@ function generate(getNextChunkFn, initialChunks = [], options = {}) {
     // Ask for the next chunk. If this fails, try again with a shorter lookbehind.
     return getNextChunkFn(key).then(chunk => {
       if (chunk == null) return getNextChunk(chunks, lookbehind - 1);
+      if (chunk === END_KEY) return chunks; // Got the end key, bail out
       return getNextChunk(chunks.concat(chunk));
     });
   }
