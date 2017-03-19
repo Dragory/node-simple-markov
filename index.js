@@ -76,7 +76,7 @@ function generate(getNextChunkFn, initialChunks = [], options = {}) {
     });
   }
 
-  return getNextChunk(initialChunks);
+  return Promise.resolve(getNextChunk(initialChunks));
 }
 
 module.exports = {
